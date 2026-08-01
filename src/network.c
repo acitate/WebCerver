@@ -45,3 +45,17 @@ int get_server_socket(int port)
     return server_fd;
 }
 
+
+// Converts sockaddr_in to string format "[IP]:[PORT]"
+// Caller must free returned string
+char *get_address_string(struct sockaddr_in *addr_in) {
+    // struct sockaddr_in *addr_in = (struct sockaddr_in *)addr;
+    char ip_str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(addr_in->sin_addr), ip_str, INET_ADDRSTRLEN);
+    int port = ntohs(addr_in->sin_port);
+    
+    char *result = malloc(strlen(ip_str) + 1 + 5 + 2 + 1); // IP + : + port + [] + null
+    if (!result) return NULL;
+    sprintf(result, "%s:%d", ip_str, port);
+    return result;
+}
