@@ -14,7 +14,7 @@ int get_server_socket(int port)
     // Create socket: IPv4, TCP
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
-        perror("socket creation failed");
+        perror("[\x1b[31mNetwork.c\x1b[0m] socket creation failed");
         exit(EXIT_FAILURE);
     }
 
@@ -32,13 +32,13 @@ int get_server_socket(int port)
     address.sin_port = htons(port);
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        perror("bind failed");
+        perror("[\x1b[31mNetwork.c\x1b[0m] bind failed");
         exit(EXIT_FAILURE);
     }
 
     // Start listening with backlog of 3 pending connections
     if (listen(server_fd, 3) < 0) {
-        perror("listen failed");
+        perror("[\x1b[31mNetwork.c\x1b[0m] listen failed");
         exit(EXIT_FAILURE);
     }
 
@@ -48,7 +48,8 @@ int get_server_socket(int port)
 
 // Converts sockaddr_in to string format "[IP]:[PORT]"
 // Caller must free returned string
-char *get_address_string(struct sockaddr_in *addr_in) {
+char *get_address_string(struct sockaddr_in *addr_in) 
+{
     // struct sockaddr_in *addr_in = (struct sockaddr_in *)addr;
     char ip_str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &(addr_in->sin_addr), ip_str, INET_ADDRSTRLEN);
@@ -58,4 +59,33 @@ char *get_address_string(struct sockaddr_in *addr_in) {
     if (!result) return NULL;
     sprintf(result, "%s:%d", ip_str, port);
     return result;
+}
+
+
+int network_accept(int sock_fd)
+{
+    struct sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
+    int client_fd = accept(sock_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+
+    if (client_fd == -1) {
+        perror("[\x1b[31mNetwork.c\x1b[0m] accept failed");
+    }
+    else {
+        printf("[\x1b[32mNetwork.c\x1b[0m] received connection from %s\n", get_address_string(&client_addr));
+    }
+
+    return client_fd;
+}
+
+
+size_t read_request(int sock_fd,char *out, size_t out_len)
+{
+    return recv(sock_fd, out, out_len, 0);
+}
+
+
+int network_close(int sock_fd)
+{
+    return close(sock_fd);
 }
