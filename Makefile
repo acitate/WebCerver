@@ -7,7 +7,7 @@
 CC = clang
 
 # define any compile-time flags
-CFLAGS	:= -Wall -Wextra -g
+CFLAGS	:= -Wall -Wextra -g -Ilib/sds
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -28,7 +28,7 @@ LIB		:= lib
 
 ifeq ($(OS),Windows_NT)
 MAIN	:= main.exe
-SOURCEDIRS	:= $(SRC)
+SOURCEDIRS	:= $(SRC) \ $(LIB)
 INCLUDEDIRS	:= $(INCLUDE)
 LIBDIRS		:= $(LIB)
 FIXPATH = $(subst /,\,$1)
@@ -36,7 +36,7 @@ RM			:= del /q /f
 MD	:= mkdir
 else
 MAIN	:= main
-SOURCEDIRS	:= $(shell find $(SRC) -type d)
+SOURCEDIRS	:= $(shell find $(SRC) -type d) \ $(shell find $(LIB) -type d)
 INCLUDEDIRS	:= $(shell find $(INCLUDE) -type d)
 LIBDIRS		:= $(shell find $(LIB) -type d)
 FIXPATH = $1
