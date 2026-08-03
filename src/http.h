@@ -29,5 +29,6 @@ typedef struct
     size_t body_len;
 } HttpRequest;
 
+void http_parse(const sds raw, size_t len, HttpRequest *out);
 
 #endif

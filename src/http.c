@@ -6,6 +6,12 @@
 #include <stddef.h>
 
 
+static const struct { const char *name; HttpMethod method; } METHOD_TABLE[] = {
+    { "GET", HTTP_METHOD_GET },
+};
+
+
+
 size_t find_first(const char *str, size_t str_len, const char *sub_str, size_t sub_str_len)
 {
     // Finds first occurrence of `sub_str` in `str` and returns its index.
@@ -38,3 +44,61 @@ void split_request(sds raw, size_t raw_len, sds *req_line, sds *headers, sds *bo
 }
 
 
+HttpMethod lookup_method(const char *token)
+{
+    for (unsigned long i = 0; i < sizeof(METHOD_TABLE)/sizeof(*METHOD_TABLE); i++) {
+        if (strcmp(METHOD_TABLE[i].name, token) == 0){
+            return METHOD_TABLE[i].method;
+        }
+    }
+    return HTTP_METHOD_UNDEFINED;
+}
+
+
+void parse_request_line(sds request_line, HttpRequest *req)
+{
+    int token_count;
+    sds *tokens = sdssplitlen(request_line, sdslen(request_line), " ", 1, &token_count);
+
+    req->method = lookup_method(tokens[0]);
+    strcpy(req->path, tokens[1]);
+    strcpy(req->versrion, tokens[2]);
+}
+
+
+void parse_headers(sds headers, HttpRequest *req)
+{
+    int line_count;
+    sds *lines = sdssplitlen(headers, sdslen(headers), "\r\n", 2, &line_count);
+
+    for (int i = 0; i < line_count; i++) {
+        HttpHeader header;
+        int _; 
+        sds *tokens = sdssplitlen(lines[i], sdslen(lines[i]), ": ", 2, &_);
+
+        strcpy(header.name, tokens[0]);
+        strcpy(header.value, tokens[1]);
+
+        req->headers[i] = header;        
+    }
+    req->header_count = line_count;
+}
+
+
+void parse_body(sds body, HttpRequest *req)
+{
+    req->body_len = sdslen(body);
+    req->body = malloc(req->body_len);
+    strcpy(req->body, body);
+}
+
+
+void http_parse(const sds raw, size_t len, HttpRequest *out)
+{
+    sds request_line, headers, body;
+    split_request(raw, len, &request_line, &headers, &body);
+    
+    parse_request_line(request_line, out);
+    parse_headers(headers, out);
+    parse_body(body, out);
+}
