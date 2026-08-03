@@ -14,7 +14,8 @@ static void *handle_connection(void *arg)
     char buffer[BUFFER_SIZE];
     size_t n = read_request(client_fd, buffer, sizeof(buffer));
 
-    serve_request(buffer);
+    char *response;
+    process_request(buffer, n, &response);
 
     network_close(client_fd);
 }
