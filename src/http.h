@@ -29,6 +29,17 @@ typedef struct
     size_t body_len;
 } HttpRequest;
 
+typedef struct 
+{
+    int status_code;
+    const char *reason_phrase;
+    HttpHeader headers[16];
+    size_t header_count;
+    char *body;
+    size_t body_len;
+} HttpResponse;
+
+
 void http_parse(const sds raw, size_t len, HttpRequest *out);
 
 #endif
