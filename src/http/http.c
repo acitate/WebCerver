@@ -61,8 +61,10 @@ void parse_request_line(sds request_line, HttpRequest *req)
     sds *tokens = sdssplitlen(request_line, sdslen(request_line), " ", 1, &token_count);
 
     req->method = lookup_method(tokens[0]);
-    strcpy(req->path, tokens[1]);
-    strcpy(req->versrion, tokens[2]);
+    // strcpy(req->path, tokens[1]);
+    req->path = tokens[1];
+    // strcpy(req->versrion, tokens[2]);
+    req->version = tokens[2];
 }
 
 
@@ -76,10 +78,12 @@ void parse_headers(sds headers, HttpRequest *req)
         int _; 
         sds *tokens = sdssplitlen(lines[i], sdslen(lines[i]), ": ", 2, &_);
 
-        strcpy(header.name, tokens[0]);
-        strcpy(header.value, tokens[1]);
+        header.name = tokens[0];
+        header.value = tokens[1];
+        // strcpy(header.name, tokens[0]);
+        // strcpy(header.value, tokens[1]);
 
-        req->headers[i] = header;        
+        req->headers[i] = header; 
     }
     req->header_count = line_count;
 }
@@ -88,12 +92,13 @@ void parse_headers(sds headers, HttpRequest *req)
 void parse_body(sds body, HttpRequest *req)
 {
     req->body_len = sdslen(body);
-    req->body = malloc(req->body_len);
-    strcpy(req->body, body);
+    // req->body = malloc(req->body_len);
+    req->body = body;
+    // strcpy(req->body, body);
 }
 
 
-void http_parse(const sds raw, size_t len, HttpRequest *out)
+void http_parse_request(const sds raw, size_t len, HttpRequest *out)
 {
     sds request_line, headers, body;
     split_request(raw, len, &request_line, &headers, &body);

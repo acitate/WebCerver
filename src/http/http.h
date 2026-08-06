@@ -13,33 +13,33 @@ typedef enum
 
 typedef struct
 {
-    char name[64];
-    char value[256];
+    sds name;
+    sds value;
 } HttpHeader;
 
 
 typedef struct 
 {
     HttpMethod method;
-    char path[1024];
-    char versrion[16];
+    sds path;
+    sds version;
     HttpHeader headers[32];
     size_t header_count;
-    char *body;
+    sds body;
     size_t body_len;
 } HttpRequest;
 
 typedef struct 
 {
     int status_code;
-    const char *reason_phrase;
+    sds reason_phrase;
     HttpHeader headers[16];
     size_t header_count;
-    char *body;
+    sds body;
     size_t body_len;
 } HttpResponse;
 
 
-void http_parse(const sds raw, size_t len, HttpRequest *out);
+void http_parse_request(const sds raw, size_t len, HttpRequest *out);
 
 #endif
