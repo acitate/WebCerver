@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include "network.h"
-#include "server.h"
+#include "net/network.h"
+#include "server/server.h"
 #define PORT 8080
 #define BUFFER_SIZE 65536
 

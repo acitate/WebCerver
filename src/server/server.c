@@ -3,8 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "sds.h"
-#include "network.h" 
-#include "http.h"
+#include "../http/http.h"
 
 
 void process_request(const char *raw, size_t len, char **response)
