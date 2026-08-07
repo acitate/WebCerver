@@ -27,6 +27,7 @@ typedef struct
     size_t body_len;
 } HttpRequest;
 
+
 typedef struct 
 {
     int status_code;
@@ -39,5 +40,7 @@ typedef struct
 
 
 void http_parse_request(const sds raw, size_t len, HttpRequest *out);
+void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len);
+void http_response_404(sds *resp_buf, size_t *resp_len);
 
 #endif

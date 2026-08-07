@@ -107,3 +107,35 @@ void http_parse_request(const sds raw, size_t len, HttpRequest *out)
     parse_headers(headers, out);
     parse_body(body, out);
 }
+
+
+void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len)
+{
+    sds status_line = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", resp.status_code, resp.reason_phrase);
+    sds headers_str = sdsempty();
+    sds body = sdscatprintf(sdsempty(), "%s", resp.body);
+    
+    for (int hc = 0; hc < resp.header_count; hc++)
+    {
+        headers_str = sdscatprintf(headers_str, "%s: %s\r\n", resp.headers[hc].name, resp.headers[hc].value);
+    }
+
+    *resp_buf = sdscatprintf(sdsempty(), "%s%s\r\n", status_line, headers_str);
+    *resp_buf = sdscatprintf(*resp_buf, "%s", body);
+    *resp_len = sdslen(*resp_buf);
+
+    sdsfree(status_line);
+    sdsfree(headers_str);
+    sdsfree(body);
+}
+
+
+void http_response_404(sds *resp_buf, size_t *resp_len)
+{
+    sds status_line = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", 404, "NOT FOUND");
+    sds headers_str = sdsnew("Connection: close\r\nContent-Length: 21\r\nContent-Type: text/plain\r\n");
+    sds body = sdsnew("Error 404: Not Found!");
+
+    *resp_buf = sdscatprintf(sdsempty(), "%s%s\r\n%s", status_line, headers_str, body);
+    *resp_len = sdslen(*resp_buf);
+}
