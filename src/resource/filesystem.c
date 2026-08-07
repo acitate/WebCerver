@@ -7,7 +7,7 @@
 #include "filesystem.h"
 
 
-FsStatus filesystem_read(const char *path, char **out_buf, size_t *out_len) {
+FsStatus filesystem_read_file(const char *path, char **out_buf, size_t *out_len) {
     if (!path || !out_buf || !out_len) {
         return FS_ERR_UNEXPECTED;
     }
