@@ -89,3 +89,9 @@ int network_close(int sock_fd)
 {
     return close(sock_fd);
 }
+
+
+size_t send_response(int sock_fd, char *out, size_t out_len)
+{
+    return send(sock_fd, out, out_len, 0);
+}
