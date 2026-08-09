@@ -79,7 +79,7 @@ int network_accept(int sock_fd)
 }
 
 
-size_t read_request(int sock_fd,char *out, size_t out_len)
+size_t network_read_bytes(int sock_fd,char *out, size_t out_len)
 {
     return recv(sock_fd, out, out_len, 0);
 }
@@ -91,7 +91,7 @@ int network_close(int sock_fd)
 }
 
 
-size_t send_response(int sock_fd, char *out, size_t out_len)
+size_t network_send_bytes(int sock_fd, char *out, size_t out_len)
 {
     return send(sock_fd, out, out_len, 0);
 }

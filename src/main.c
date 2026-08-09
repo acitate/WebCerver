@@ -12,10 +12,11 @@ static void *handle_connection(void *arg)
 {   
     int client_fd = (int)(intptr_t) arg;
     char buffer[BUFFER_SIZE];
-    size_t n = read_request(client_fd, buffer, sizeof(buffer));
+    size_t n = network_read_bytes(client_fd, buffer, sizeof(buffer));
 
     char *response;
-    process_request(buffer, n, &response);
+    size_t m;
+    server_process_request(buffer, n, &response, &m);
 
     network_close(client_fd);
 }
