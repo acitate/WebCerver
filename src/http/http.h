@@ -39,6 +39,20 @@ typedef struct
 } HttpResponse;
 
 
+typedef enum 
+{
+    HTTP_PARSE_OK = 0,
+    HTTP_PARSE_ERR_MALFORMED_REQUEST_LINE,
+    HTTP_PARSE_ERR_URI_TOO_LONG,
+    HTTP_PARSE_ERR_UNSUPPORTED_VERSION,
+    HTTP_PARSE_ERR_MALFORMED_HEADER,
+    HTTP_PARSE_ERR_HEADER_TOO_LONG,
+    HTTP_PARSE_ERR_TOO_MANY_HEADERS,
+    HTTP_PARSE_INCOMPLETE,
+    HTTP_PARSE_ERR_BUFFER_OVERRUN
+} HttpParseStatus;
+
+
 void http_parse_request(const sds raw, size_t len, HttpRequest *out);
 void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len);
 void http_response_404(sds *resp_buf, size_t *resp_len);

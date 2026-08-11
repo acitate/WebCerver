@@ -115,7 +115,7 @@ void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len)
     sds headers_str = sdsempty();
     sds body = sdscatprintf(sdsempty(), "%s", resp.body);
     
-    for (int hc = 0; hc < resp.header_count; hc++)
+    for (size_t hc = 0; hc < resp.header_count; hc++)
     {
         headers_str = sdscatprintf(headers_str, "%s: %s\r\n", resp.headers[hc].name, resp.headers[hc].value);
     }
