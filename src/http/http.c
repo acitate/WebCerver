@@ -6,12 +6,6 @@
 #include <stddef.h>
 
 
-static const struct { const char *name; HttpMethod method; } METHOD_TABLE[] = {
-    { "GET", HTTP_METHOD_GET },
-};
-
-
-
 size_t find_first(const char *str, size_t str_len, const char *sub_str, size_t sub_str_len)
 {
     // Finds first occurrence of `sub_str` in `str` and returns its index.
@@ -44,7 +38,7 @@ void split_request(sds raw, size_t raw_len, sds *req_line, sds *headers, sds *bo
 }
 
 
-HttpMethod lookup_method(const char *token)
+HttpMethod lookup_method(const sds token)
 {
     for (unsigned long i = 0; i < sizeof(METHOD_TABLE)/sizeof(*METHOD_TABLE); i++) {
         if (strcmp(METHOD_TABLE[i].name, token) == 0){

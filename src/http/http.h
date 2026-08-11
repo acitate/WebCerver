@@ -53,6 +53,15 @@ typedef enum
 } HttpParseStatus;
 
 
+static const struct { const sds name; HttpMethod method; } METHOD_TABLE[] = {
+    { "GET", HTTP_METHOD_GET },
+};
+
+void split_request(sds raw, size_t raw_len, sds *req_line, sds *headers, sds *body);
+HttpMethod lookup_method(const sds token);
+void parse_request_line(sds request_line, HttpRequest *req);
+void parse_headers(sds headers, HttpRequest *req);
+void parse_body(sds body, HttpRequest *req);
 void http_parse_request(const sds raw, size_t len, HttpRequest *out);
 void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len);
 void http_response_404(sds *resp_buf, size_t *resp_len);
