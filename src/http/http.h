@@ -4,6 +4,7 @@
 #define MAX_URI_LEN 2048
 #define MAX_HEADERS 32
 #define MAX_HEADER_LEN 8192
+#define DEFAULT_MIME_TYPE "application/octet-stream"
 #define TRY(expr) do { HttpParseStatus _s = (expr); \
                         if (_s != HTTP_PARSE_OK) return _s; } while (0)
 
@@ -71,5 +72,6 @@ HttpParseStatus parse_body(sds body, HttpRequest *req);
 HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out);
 void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len);
 void http_response_404(sds *resp_buf, size_t *resp_len);
+sds get_mime_type(sds filename);
 
 #endif

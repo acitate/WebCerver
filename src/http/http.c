@@ -163,3 +163,28 @@ void http_response_404(sds *resp_buf, size_t *resp_len)
     *resp_buf = sdscatprintf(sdsempty(), "%s%s\r\n%s", status_line, headers_str, body);
     *resp_len = sdslen(*resp_buf);
 }
+
+
+sds get_mime_type(sds filename)
+{
+    sds ext = strrchr(filename, '.');
+
+    if (ext == NULL) {
+        return DEFAULT_MIME_TYPE;
+    }
+    
+    ext++;
+
+    sdstolower(ext);
+
+    if (strcmp(ext, "html") == 0 || strcmp(ext, "htm") == 0) { return "text/html"; }
+    if (strcmp(ext, "jpeg") == 0 || strcmp(ext, "jpg") == 0) { return "image/jpg"; }
+    if (strcmp(ext, "css") == 0) { return "text/css"; }
+    if (strcmp(ext, "js") == 0) { return "application/javascript"; }
+    if (strcmp(ext, "json") == 0) { return "application/json"; }
+    if (strcmp(ext, "txt") == 0) { return "text/plain"; }
+    if (strcmp(ext, "gif") == 0) { return "image/gif"; }
+    if (strcmp(ext, "png") == 0) { return "image/png"; }
+
+    return DEFAULT_MIME_TYPE;
+}
