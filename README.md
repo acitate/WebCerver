@@ -19,16 +19,27 @@ A minimal HTTP/1.1 server written in C for learning purposes. Features raw socke
 ```
 .
 ├── lib/
-│   └── sds/              # Simple Dynamic Strings library
+│   └── sds/                      # SDS dynamic string library
 │       ├── sds.h
 │       ├── sds.c
 │       └── sdsalloc.h
 ├── src/
-│   ├── main.c            # Entry point, server loop
-│   ├── network.h/.c      # Socket abstraction (bind, listen, accept, read, close, send)
-│   ├── server.h/.c       # Request dispatch (process_request)
-│   └── http.h/.c         # HTTP parsing (request line, headers, body)
-├── Makefile              # Build system
+│   ├── main.c                    # Entry point, server loop
+│   ├── http/                     # HTTP protocol handling
+│   │   ├── http.c                # Request parsing (request line, headers, body)
+│   │   └── http.h
+│   ├── net/                      # Network layer
+│   │   ├── network.c             # Socket abstraction
+│   │   └── network.h
+│   ├── resource/                 # Resource handling
+│   │   ├── filesystem.c          # Filesystem operations
+│   │   ├── filesystem.h
+│   │   ├── resource_resolver.c   # Resource resolution (static files, routes)
+│   │   └── resource_resolver.h
+│   └── server/                   # Server core
+│       ├── server.c              # Request dispatch, response building
+│       └── server.h
+├── Makefile                      # Build system
 ├── LICENSE
 └── README.md
 ```
