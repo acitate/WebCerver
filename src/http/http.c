@@ -49,57 +49,87 @@ HttpMethod lookup_method(const sds token)
 }
 
 
-void parse_request_line(sds request_line, HttpRequest *req)
+HttpParseStatus parse_request_line(sds request_line, HttpRequest *req)
 {
     int token_count;
     sds *tokens = sdssplitlen(request_line, sdslen(request_line), " ", 1, &token_count);
 
+    if (token_count != 3)
+        return HTTP_PARSE_ERR_MALFORMED_REQUEST_LINE;
+
+    if (strncmp(tokens[1], "/", 1) != 0)
+        return HTTP_PARSE_ERR_MALFORMED_REQUEST_LINE;
+
+    if (sdslen(tokens[1]) > MAX_URI_LEN)
+        return HTTP_PARSE_ERR_URI_TOO_LONG;
+    
     req->method = lookup_method(tokens[0]);
-    // strcpy(req->path, tokens[1]);
     req->path = tokens[1];
-    // strcpy(req->versrion, tokens[2]);
     req->version = tokens[2];
+
+    return HTTP_PARSE_OK;
 }
 
 
-void parse_headers(sds headers, HttpRequest *req)
+HttpParseStatus parse_headers(sds headers, HttpRequest *req)
 {
     int line_count;
     sds *lines = sdssplitlen(headers, sdslen(headers), "\r\n", 2, &line_count);
 
-    for (int i = 0; i < line_count; i++) {
-        HttpHeader header;
-        int _; 
-        sds *tokens = sdssplitlen(lines[i], sdslen(lines[i]), ": ", 2, &_);
+    if (line_count > MAX_HEADERS)
+        return HTTP_PARSE_ERR_TOO_MANY_HEADERS;
 
-        header.name = tokens[0];
-        header.value = tokens[1];
-        // strcpy(header.name, tokens[0]);
-        // strcpy(header.value, tokens[1]);
+    for (int i = 0; i < line_count; i++) {
+
+        if (sdslen(lines[i]) > MAX_HEADER_LEN)
+            return HTTP_PARSE_ERR_HEADER_TOO_LONG;
+
+        size_t line_len = sdslen(lines[i]);
+        size_t colon_idx = find_first(lines[i], line_len, ":", 1);
+
+        if (colon_idx == SIZE_MAX)
+            return HTTP_PARSE_ERR_MALFORMED_HEADER;
+
+        HttpHeader header;
+
+        header.name = sdsnew(lines[i]);
+        sdsrange(header.name, 0, colon_idx - 1);
+        sdstrim(header.name, " ");
+
+        header.value = sdsnew(lines[i]);
+        sdsrange(header.value, colon_idx + 1, line_len);
+        sdstrim(header.value, " ");
 
         req->headers[i] = header; 
     }
     req->header_count = line_count;
+
+    sdsfreesplitres(lines, line_count);
+
+    return HTTP_PARSE_OK;
 }
 
 
-void parse_body(sds body, HttpRequest *req)
+HttpParseStatus parse_body(sds body, HttpRequest *req)
 {
     req->body_len = sdslen(body);
-    // req->body = malloc(req->body_len);
     req->body = body;
-    // strcpy(req->body, body);
+
+    return HTTP_PARSE_OK;
 }
 
 
-void http_parse_request(const sds raw, size_t len, HttpRequest *out)
+HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out)
 {
     sds request_line, headers, body;
     split_request(raw, len, &request_line, &headers, &body);
     
-    parse_request_line(request_line, out);
-    parse_headers(headers, out);
+    TRY(parse_request_line(request_line, out));
+    TRY(parse_headers(headers, out));
     parse_body(body, out);
+
+    
+    return HTTP_PARSE_OK;
 }
 
 

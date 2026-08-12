@@ -1,6 +1,12 @@
 #ifndef __HTTP_H
 #define __HTTP_H
 
+#define MAX_URI_LEN 2048
+#define MAX_HEADERS 32
+#define MAX_HEADER_LEN 8192
+#define TRY(expr) do { HttpParseStatus _s = (expr); \
+                        if (_s != HTTP_PARSE_OK) return _s; } while (0)
+
 
 typedef enum 
 {
@@ -21,7 +27,7 @@ typedef struct
     HttpMethod method;
     sds path;
     sds version;
-    HttpHeader headers[32];
+    HttpHeader headers[MAX_HEADERS];
     size_t header_count;
     sds body;
     size_t body_len;
@@ -59,10 +65,10 @@ static const struct { const sds name; HttpMethod method; } METHOD_TABLE[] = {
 
 void split_request(sds raw, size_t raw_len, sds *req_line, sds *headers, sds *body);
 HttpMethod lookup_method(const sds token);
-void parse_request_line(sds request_line, HttpRequest *req);
-void parse_headers(sds headers, HttpRequest *req);
-void parse_body(sds body, HttpRequest *req);
-void http_parse_request(const sds raw, size_t len, HttpRequest *out);
+HttpParseStatus parse_request_line(sds request_line, HttpRequest *req);
+HttpParseStatus parse_headers(sds headers, HttpRequest *req);
+HttpParseStatus parse_body(sds body, HttpRequest *req);
+HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out);
 void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len);
 void http_response_404(sds *resp_buf, size_t *resp_len);
 
