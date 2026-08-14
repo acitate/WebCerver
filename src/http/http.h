@@ -73,5 +73,7 @@ HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out);
 void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len);
 void http_response_404(sds *resp_buf, size_t *resp_len);
 sds get_mime_type(sds filename);
+const sds http_reason_phrase(int status_code);
+
 
 #endif
