@@ -138,20 +138,24 @@ void http_build_response_str(HttpResponse resp, sds *resp_buf, size_t *resp_len)
 {
     sds status_line = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", resp.status_code, resp.reason_phrase);
     sds headers_str = sdsempty();
-    sds body = sdscatprintf(sdsempty(), "%s", resp.body);
     
+
     for (size_t hc = 0; hc < resp.header_count; hc++)
     {
         headers_str = sdscatprintf(headers_str, "%s: %s\r\n", resp.headers[hc].name, resp.headers[hc].value);
     }
 
     *resp_buf = sdscatprintf(sdsempty(), "%s%s\r\n", status_line, headers_str);
-    *resp_buf = sdscatprintf(*resp_buf, "%s", body);
+    if (resp.body) {
+        sds body = sdscatprintf(sdsempty(), "%s", resp.body);
+        *resp_buf = sdscatprintf(*resp_buf, "%s", body);
+        sdsfree(body);
+    }
     *resp_len = sdslen(*resp_buf);
 
     sdsfree(status_line);
     sdsfree(headers_str);
-    sdsfree(body);
+    
 }
 
 
