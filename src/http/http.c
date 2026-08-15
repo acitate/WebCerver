@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "sds.h"
 #include "http.h"
 #include <string.h>
@@ -133,7 +134,7 @@ HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out)
 }
 
 
-void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len)
+void http_build_response_str(HttpResponse resp, sds *resp_buf, size_t *resp_len)
 {
     sds status_line = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", resp.status_code, resp.reason_phrase);
     sds headers_str = sdsempty();
@@ -204,4 +205,12 @@ const sds http_reason_phrase(int status_code)
         case 505: return "HTTP Version Not Supported";
         default:  return "Error";
     }
+}
+
+
+bool http_add_header(HttpResponse *resp, const sds name, const sds value)
+{
+    if (resp->header_count >= MAX_HEADERS) return false; 
+    resp->headers[resp->header_count++] = (HttpHeader){ .name = name, .value = value };
+    return true;
 }

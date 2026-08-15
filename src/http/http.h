@@ -1,6 +1,8 @@
 #ifndef __HTTP_H
 #define __HTTP_H
 
+#include <stdbool.h>
+
 #define MAX_URI_LEN 2048
 #define MAX_HEADERS 32
 #define MAX_HEADER_LEN 8192
@@ -70,10 +72,11 @@ HttpParseStatus parse_request_line(sds request_line, HttpRequest *req);
 HttpParseStatus parse_headers(sds headers, HttpRequest *req);
 HttpParseStatus parse_body(sds body, HttpRequest *req);
 HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out);
-void http_build_response(HttpResponse resp, sds *resp_buf, size_t *resp_len);
+void http_build_response_str(HttpResponse resp, sds *resp_buf, size_t *resp_len);
 void http_response_404(sds *resp_buf, size_t *resp_len);
 sds get_mime_type(sds filename);
 const sds http_reason_phrase(int status_code);
+bool http_add_header(HttpResponse *resp, const sds name, const sds value);
 
 
 #endif
