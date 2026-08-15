@@ -18,6 +18,8 @@ static void *handle_connection(void *arg)
     size_t resp_len;
     server_process_request(buffer, buf_len, &resp, &resp_len);
 
+    network_send_bytes(client_fd, resp, resp_len);
+
     network_close(client_fd);
 }
 
