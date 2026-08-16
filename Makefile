@@ -35,7 +35,7 @@ FIXPATH = $(subst /,\,$1)
 RM			:= del /q /f
 MD	:= mkdir
 else
-MAIN	:= main
+MAIN	:= WebCerver
 SOURCEDIRS	:= $(shell find $(SRC) -type d) \ $(shell find $(LIB) -type d)
 INCLUDEDIRS	:= $(shell find $(INCLUDE) -type d)
 LIBDIRS		:= $(shell find $(LIB) -type d)
