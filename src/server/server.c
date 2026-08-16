@@ -11,6 +11,10 @@
 
 void server_process_request(const sds *req_str, size_t req_len, sds *resp_str, size_t *resp_len)
 {
+    sds webroot = "root";
+    sds canonicalized_webroot = sds_malloc(1024);
+    canonicalize_webroot(webroot, canonicalized_webroot, 1024);
+
     HttpRequest request;
     HttpParseStatus hpstatus = http_parse_request(req_str, req_len, &request);
     HttpResponse response;
@@ -22,7 +26,7 @@ void server_process_request(const sds *req_str, size_t req_len, sds *resp_str, s
     } else {
         sds buf;
         size_t buf_len;
-        PathStatus pstatus = resolve_resource(request.path, sdslen(request.path), "root", &buf, &buf_len);
+        PathStatus pstatus = resolve_resource(request.path, sdslen(request.path), canonicalized_webroot, &buf, &buf_len);
         if (pstatus != PATH_OK) {
             build_error_response(&response, http_code_for_PathStatus(pstatus));
         } else {
