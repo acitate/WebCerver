@@ -136,37 +136,22 @@ HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out)
 
 void http_build_response_str(HttpResponse resp, sds *resp_buf, size_t *resp_len)
 {
-    sds status_line = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", resp.status_code, resp.reason_phrase);
-    sds headers_str = sdsempty();
-    
-
+    sds header_block = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", resp.status_code, resp.reason_phrase);
     for (size_t hc = 0; hc < resp.header_count; hc++)
-    {
-        headers_str = sdscatprintf(headers_str, "%s: %s\r\n", resp.headers[hc].name, resp.headers[hc].value);
-    }
+        header_block = sdscatprintf(header_block, "%s: %s\r\n", resp.headers[hc].name, resp.headers[hc].value);
+    header_block = sdscat(header_block, "\r\n");
+    size_t header_len = sdslen(header_block);
 
-    *resp_buf = sdscatprintf(sdsempty(), "%s%s\r\n", status_line, headers_str);
-    if (resp.body) {
-        sds body = sdscatprintf(sdsempty(), "%s", resp.body);
-        *resp_buf = sdscatprintf(*resp_buf, "%s", body);
-        sdsfree(body);
-    }
-    *resp_len = sdslen(*resp_buf);
+    size_t total_len = header_len + resp.body_len;
+    char *buf = malloc(total_len);
 
-    sdsfree(status_line);
-    sdsfree(headers_str);
-    
-}
+    memcpy(buf, header_block, header_len);
+    memcpy(buf + header_len, resp.body, resp.body_len);
 
+    *resp_buf = buf;
+    *resp_len = total_len;
 
-void http_response_404(sds *resp_buf, size_t *resp_len)
-{
-    sds status_line = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", 404, "NOT FOUND");
-    sds headers_str = sdsnew("Connection: close\r\nContent-Length: 21\r\nContent-Type: text/plain\r\n");
-    sds body = sdsnew("Error 404: Not Found!");
-
-    *resp_buf = sdscatprintf(sdsempty(), "%s%s\r\n%s", status_line, headers_str, body);
-    *resp_len = sdslen(*resp_buf);
+    sdsfree(header_block);
 }
 
 
