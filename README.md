@@ -76,8 +76,7 @@ make run
 
 Server listens on **port 8080** (hardcoded in `src/main.c`). Test with:
 ```bash
-curl http://localhost:8080/
-curl -X GET http://localhost:8080/test
+curl -X GET http://localhost:8080/[file-path]
 ```
 
 ## Architecture
@@ -86,22 +85,30 @@ curl -X GET http://localhost:8080/test
 ```
 main.c (server loop)
     └── pthread_create → handle_connection()
-            └── network.c → read_request()
-            └── server.c → process_request()
-                    └── http.c → http_parse()
-                            ├── split_request()  (request line / headers / body)
-                            ├── parse_request_line()
-                            ├── parse_headers()
-                            └── parse_body()
+            └── net/network.c → network_read_bytes()
+            └── server/server.c → server_process_request()
+                    ├── http/http.c → http_parse_request()
+                    │       ├── split_request()
+                    │       ├── parse_request_line()
+                    │       ├── parse_headers()
+                    │       └── parse_body()
+                    ├── resource/resource_resolver.c → resolve_resource()
+                    │       └── resource/filesystem.c → read
+                    └── http/http.c → http_build_response_str()
+                            ├── build_success_response() / build_error_response()
+                            └── get_mime_type(), http_reason_phrase()
+            └── net/network.c → network_send_bytes()
 ```
 
 ### Module Responsibilities
 | Module | Responsibility |
 |--------|---------------|
 | `main.c` | Socket setup, accept loop, thread spawning |
-| `network.c` | Socket creation, bind, listen, accept, read, close |
-| `server.c` | Request/response orchestration (stub) |
-| `http.c` | HTTP/1.1 parsing into `HttpRequest` struct |
+| `net/network.c` | Socket I/O: bind, listen, accept, read, write, close |
+| `server/server.c` | Request orchestration: parse → resolve → build response |
+| `http/http.c` | HTTP/1.1 parsing + response building (headers, status, body) |
+| `resource/resource_resolver.c` | Path validation, traversal protection, resource mapping |
+| `resource/filesystem.c` | file reading |
 | `sds` | Dynamic string buffer (growable, binary-safe) |
 
 ## Dependencies
