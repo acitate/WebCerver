@@ -59,3 +59,9 @@ dkms.conf
 
 # Artifacts
 output/
+
+# NodeJS
+head
+*.json
+v
+node_modules/
