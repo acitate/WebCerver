@@ -9,9 +9,8 @@
 #include "../resource/filesystem.h"
 #include "server.h"
 
-void server_process_request(const sds *req_str, size_t req_len, sds *resp_str, size_t *resp_len)
+void server_process_request(const sds *req_str, size_t req_len, sds *resp_str, size_t *resp_len, sds webroot)
 {
-    sds webroot = "root";
     sds canonicalized_webroot = sds_malloc(1024);
     canonicalize_webroot(webroot, canonicalized_webroot, 1024);
 
