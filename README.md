@@ -19,10 +19,13 @@ A minimal HTTP/1.1 server written in C for learning purposes. Features raw socke
 ```
 .
 ├── lib/
-│   └── sds/                      # SDS dynamic string library
-│       ├── sds.h
-│       ├── sds.c
-│       └── sdsalloc.h
+│   ├── sds/                      # SDS dynamic string library
+│   │   ├── sds.h
+│   │   ├── sds.c
+│   │   └── sdsalloc.h
+│   └── argtable3/
+│       ├── argtable3.h
+│       └── argtable3.c
 ├── src/
 │   ├── main.c                    # Entry point, server loop
 │   ├── http/                     # HTTP protocol handling
@@ -68,15 +71,12 @@ Output binary location: `./output/main`
 ## Running
 ```bash
 # After building
-./output/main
-
-# Or use make target
-make run
+./output/WebCerver start --webroot <path> [--port <port>] 
 ```
 
-Server listens on **port 8080** (hardcoded in `src/main.c`). Test with:
+Server listens on **port 8080 by default**. Test with:
 ```bash
-curl -X GET http://localhost:8080/[file-path]
+curl -X GET http://localhost:[PORT]/[file-path]
 ```
 
 ## Architecture
@@ -110,9 +110,11 @@ main.c (server loop)
 | `resource/resource_resolver.c` | Path validation, traversal protection, resource mapping |
 | `resource/filesystem.c` | file reading |
 | `sds` | Dynamic string buffer (growable, binary-safe) |
+| `argtable3` | CLI argument parsing |
 
 ## Dependencies
 - **[SDS](https://github.com/antirez/sds)** (bundled in `lib/sds/`) 
+- **[Argtable3](https://github.com/argtable/argtable3)** (bundled in `lib/argtable3/`) 
 - **pthread**
 - **Standard C library**
 
