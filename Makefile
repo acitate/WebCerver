@@ -7,7 +7,7 @@
 CC = clang
 
 # define any compile-time flags
-CFLAGS	:= -Wall -Wextra -g -Ilib/sds
+CFLAGS	:= -Wall -Wextra -g -Ilib/sds -Ilib/argtable3 -lm
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
