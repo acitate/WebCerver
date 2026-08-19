@@ -34,6 +34,9 @@ A minimal HTTP/1.1 server written in C for learning purposes. Features raw socke
 │   ├── net/                      # Network layer
 │   │   ├── network.c             # Socket abstraction
 │   │   └── network.h
+│   ├── cli/                      # CLI handling
+│   │   ├── cli.c
+│   │   └── cli.h
 │   ├── resource/                 # Resource handling
 │   │   ├── filesystem.c          # Filesystem operations
 │   │   ├── filesystem.h
@@ -58,9 +61,6 @@ A minimal HTTP/1.1 server written in C for learning purposes. Features raw socke
 ```bash
 # Build debug binary (default)
 make
-
-# Build and run in one step
-make run
 
 # Clean build artifacts
 make clean
@@ -109,6 +109,7 @@ main.c (server loop)
 | `http/http.c` | HTTP/1.1 parsing + response building (headers, status, body) |
 | `resource/resource_resolver.c` | Path validation, traversal protection, resource mapping |
 | `resource/filesystem.c` | file reading |
+| `cli/cli.c` | Handling Command-Line options |
 | `sds` | Dynamic string buffer (growable, binary-safe) |
 | `argtable3` | CLI argument parsing |
 
