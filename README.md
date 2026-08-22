@@ -66,7 +66,7 @@ make
 make clean
 ```
 
-Output binary location: `./output/main`
+Output binary location: `./output/WebCerver`
 
 ## Running
 ```bash
@@ -111,7 +111,7 @@ main.c (server loop)
 | `resource/filesystem.c` | file reading |
 | `cli/cli.c` | Handling Command-Line options |
 | `sds` | Dynamic string buffer (growable, binary-safe) |
-| `argtable3` | CLI argument parsing |
+| `argtable3` | CLI flag parsing |
 
 ## Dependencies
 - **[SDS](https://github.com/antirez/sds)** (bundled in `lib/sds/`) 
