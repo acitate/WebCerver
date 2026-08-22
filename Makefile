@@ -27,7 +27,7 @@ INCLUDE	:= include
 LIB		:= lib
 
 ifeq ($(OS),Windows_NT)
-MAIN	:= main.exe
+MAIN	:= WebCerver.exe
 SOURCEDIRS	:= $(SRC) \ $(LIB)
 INCLUDEDIRS	:= $(INCLUDE)
 LIBDIRS		:= $(LIB)
