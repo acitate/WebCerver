@@ -95,11 +95,11 @@ HttpParseStatus parse_headers(sds headers, HttpRequest *req)
 
         header.name = sdsnew(lines[i]);
         sdsrange(header.name, 0, colon_idx - 1);
-        sdstrim(header.name, " ");
+        sdstrim(header.name, " \r\n");
 
         header.value = sdsnew(lines[i]);
         sdsrange(header.value, colon_idx + 1, line_len);
-        sdstrim(header.value, " ");
+        sdstrim(header.value, " \r\n");
 
         req->headers[i] = header; 
     }
