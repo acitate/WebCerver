@@ -2,6 +2,7 @@
 #define __HTTP_H
 
 #include <stdbool.h>
+#include "sds.h"
 
 #define MAX_URI_LEN 2048
 #define MAX_HEADERS 32
