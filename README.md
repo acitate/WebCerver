@@ -124,5 +124,3 @@ main.c (server loop)
 The Unlicense (see LICENSE)
 
 ---
-
-⁽ᴵˢ ᶦᵗ ᵐᵉ ᵒʳ ᶦˢ ᵗʰᵉ ᵖʳᵒʲᵉᶜᵗ ⁿᵃᵐᵉ ᵏᶦⁿᵈᵃ ˡᵃᵐᵉ⁾
