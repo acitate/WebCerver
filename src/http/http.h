@@ -67,7 +67,7 @@ static const struct { const sds name; HttpMethod method; } METHOD_TABLE[] = {
     { "GET", HTTP_METHOD_GET },
 };
 
-void split_request(sds raw, size_t raw_len, sds *req_line, sds *headers, sds *body);
+HttpParseStatus split_request(sds raw, size_t raw_len, sds *req_line, sds *headers, sds *body);
 HttpMethod lookup_method(const sds token);
 HttpParseStatus parse_request_line(sds request_line, HttpRequest *req);
 HttpParseStatus parse_headers(sds headers, HttpRequest *req);
