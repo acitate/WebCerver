@@ -20,6 +20,9 @@ OUTPUT	:= output
 # define source directory
 SRC		:= src
 
+# define tests directory
+TEST	:= tests
+
 # define include directory
 INCLUDE	:= include
 
@@ -59,6 +62,15 @@ OBJECTS		:= $(SOURCES:.c=.o)
 # define the dependency output files
 DEPS		:= $(OBJECTS:.o=.d)
 
+# define test source, object, dependency and executable files
+TEST_SOURCES	:= $(wildcard $(TEST)/*.c)
+TEST_OBJECTS	:= $(TEST_SOURCES:.c=.o)
+TEST_DEPS	:= $(TEST_OBJECTS:.o=.d)
+TEST_BINS	:= $(patsubst $(TEST)/%.c,$(OUTPUT)/tests/%,$(TEST_SOURCES))
+
+# define http test link dependencies
+TEST_HTTP_OBJECTS := src/http/http.o lib/sds/sds.o
+
 #
 # The following part of the makefile is generic; it can be used to 
 # build any executable just by changing the definitions above and by
@@ -76,8 +88,17 @@ $(OUTPUT):
 $(MAIN): $(OBJECTS) 
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(OUTPUTMAIN) $(OBJECTS) $(LFLAGS) $(LIBS)
 
+$(OUTPUT)/tests/test_http_parser: tests/test_http_parser.o $(TEST_HTTP_OBJECTS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LFLAGS) $(LIBS)
+
+$(OUTPUT)/tests:
+	$(MD) $(OUTPUT)/tests
+
+$(TEST_BINS): | $(OUTPUT)/tests
+
+
 # include all .d files
--include $(DEPS)
+-include $(DEPS) $(TEST_DEPS)
 
 # this is a suffix replacement rule for building .o's and .d's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
@@ -92,8 +113,19 @@ clean:
 	$(RM) $(OUTPUTMAIN)
 	$(RM) $(call FIXPATH,$(OBJECTS))
 	$(RM) $(call FIXPATH,$(DEPS))
+	$(RM) $(call FIXPATH,$(TEST_OBJECTS))
+	$(RM) $(call FIXPATH,$(TEST_DEPS))
+	$(RM) $(call FIXPATH,$(TEST_BINS))
 	@echo Cleanup complete!
 
 run: all
 	./$(OUTPUTMAIN)
 	@echo Executing 'run: all' complete!
+
+
+.PHONY: test
+test: $(TEST_BINS)
+	@for test in $(TEST_BINS); do \
+		echo "Running $$test"; \
+		./$$test || exit 1; \
+	done
