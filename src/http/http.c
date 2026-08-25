@@ -58,6 +58,9 @@ HttpParseStatus parse_request_line(sds request_line, HttpRequest *req)
     if (token_count != 3)
         return HTTP_PARSE_ERR_MALFORMED_REQUEST_LINE;
 
+    if (sdscmp(tokens[2], sdsnew("HTTP/1.1")) != 0)
+        return HTTP_PARSE_ERR_UNSUPPORTED_VERSION;
+
     if (strncmp(tokens[1], "/", 1) != 0)
         return HTTP_PARSE_ERR_MALFORMED_REQUEST_LINE;
 
