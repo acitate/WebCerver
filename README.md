@@ -1,12 +1,16 @@
 # WebCerver
 
 A minimal HTTP/1.1 server written in C for learning purposes. Features raw socket programming, and a basic request parsing pipeline.
+[![build and release](https://github.com/acitate/WebCerver/actions/workflows/release.yml/badge.svg)](https://github.com/acitate/WebCerver/actions/workflows/release.yml)
 
 ## Features
 - TCP socket server with connection handling
 - HTTP/1.1 request parsing (GET method, headers, body)
 - Thread-per-connection model using pthreads
 - Clean Makefile with dependency tracking
+
+### Limitations
+- Only GET support at the moment.
 
 ## Table of Contents
 - [Project Structure](#project-structure)
@@ -45,6 +49,8 @@ A minimal HTTP/1.1 server written in C for learning purposes. Features raw socke
 │   └── server/                   # Server core
 │       ├── server.c              # Request dispatch, response building
 │       └── server.h
+├── tests/                        # Tests directory
+│   └── test_http_parser.c        # Tests for request parsing pipeline
 ├── Makefile                      # Build system
 ├── LICENSE
 └── README.md
@@ -64,6 +70,9 @@ make
 
 # Clean build artifacts
 make clean
+
+# Run all tests
+make test
 ```
 
 Output binary location: `./output/WebCerver`
@@ -122,5 +131,3 @@ main.c (server loop)
 
 ## License
 The Unlicense (see LICENSE)
-
----
