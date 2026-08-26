@@ -1,5 +1,5 @@
 #
-# 'make'        build executable file 'main'
+# 'make'        build executable file 'WebCerver'
 # 'make clean'  removes all .o and executable files
 #
 
