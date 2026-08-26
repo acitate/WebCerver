@@ -10,7 +10,8 @@ A minimal HTTP/1.1 server written in C for learning purposes. Features raw socke
 - Clean Makefile with dependency tracking
 
 ### Limitations
-- Only GET support at the moment.
+- Only GET support at the moment
+- Tests suite is incomplete
 
 ## Table of Contents
 - [Project Structure](#project-structure)
