@@ -1,17 +1,16 @@
 # WebCerver
 
-A minimal HTTP/1.1 server written in C for learning purposes. Features raw socket programming, and a basic request parsing pipeline.
+A minimal HTTP/1.1 server written in C. Features raw socket programming, and a basic request parsing pipeline.\
 [![build and release](https://github.com/acitate/WebCerver/actions/workflows/release.yml/badge.svg)](https://github.com/acitate/WebCerver/actions/workflows/release.yml)
 
 ## Features
-- TCP socket server with connection handling
-- HTTP/1.1 request parsing (GET method, headers, body)
+- Socket server with connection handling
+- HTTP/1.1 request parsing
 - Thread-per-connection model using pthreads
-- Clean Makefile with dependency tracking
 
 ### Limitations
-- Only GET support at the moment
-- Tests suite is incomplete
+- Current scope: HTTP/1.1 GET requests, static file serving, thread-per-connection concurrency.
+- Test suite is incomplete.
 
 ## Table of Contents
 - [Project Structure](#project-structure)
@@ -23,6 +22,9 @@ A minimal HTTP/1.1 server written in C for learning purposes. Features raw socke
 ## Project Structure
 ```
 .
+├── .github/
+│   └── workflows/
+│       └── release.yml           # Github actions release workflow
 ├── lib/
 │   ├── sds/                      # SDS dynamic string library
 │   │   ├── sds.h
