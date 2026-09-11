@@ -6,10 +6,17 @@
 #include <string.h>
 #include <stddef.h>
 
-
+/**
+ * @brief Searches the string for the first occurrence of a specified value and returns the position of where it was found.
+ * 
+ * @param str String to search in.
+ * @param str_len Length of the string to search in.
+ * @param sub_str The value to search for.
+ * @param sub_str_len Length of the value to search for.
+ * @return size_t Index of the first character in the first occurrence of the value. `SIZE_MAX` if the value wasn't found in the string.
+ */
 size_t find_first(const char *str, size_t str_len, const char *sub_str, size_t sub_str_len)
 {
-    // Finds first occurrence of `sub_str` in `str` and returns its index.
     if (sub_str_len == 0) return 0;
     if (sub_str_len > str_len) return SIZE_MAX;
 
@@ -21,12 +28,20 @@ size_t find_first(const char *str, size_t str_len, const char *sub_str, size_t s
     return SIZE_MAX;
 }
 
-
+/**
+ * @brief Splits a raw HTTP request string into 3 parts: request line, headers and body.  
+ * 
+ * @param raw Raw request line to parse.
+ * @param raw_len length of the raw request string.
+ * @param req_line Pointer to the string storing the request line (the first line of a request.) 
+ * @param headers Pointer to the string storing the headers.
+ * @param body Pointer to the string storing the body.
+ * @return HttpParseStatus 
+ */
 HttpParseStatus split_request(sds raw, size_t raw_len, sds *req_line, sds *headers, sds *body)
 {
-    // Split raw request string to request line, Headers and body. 
-    size_t idx = find_first(raw, raw_len, "\r\n\r\n", 4); // First occurrence of `\r\n\r\n` separating headers from body
-    size_t line_end = find_first(raw, raw_len, "\r\n", 2); // First occurrence of `\r\n` signifying the end of request line
+    size_t idx = find_first(raw, raw_len, "\r\n\r\n", 4); /* First occurrence of `\r\n\r\n` separating headers from body */
+    size_t line_end = find_first(raw, raw_len, "\r\n", 2); /* First occurrence of `\r\n` signifying the end of request line */
     
     if (idx == SIZE_MAX)
         return HTTP_PARSE_INCOMPLETE;
@@ -43,7 +58,12 @@ HttpParseStatus split_request(sds raw, size_t raw_len, sds *req_line, sds *heade
     return HTTP_PARSE_OK;
 }
 
-
+/**
+ * @brief Turns a HTTP method string to a `HttpMethod` enum value.
+ * 
+ * @param token HTTP method string.
+ * @return HttpMethod HTTP method Enumn.
+ */
 HttpMethod lookup_method(const sds token)
 {
     for (unsigned long i = 0; i < sizeof(METHOD_TABLE)/sizeof(*METHOD_TABLE); i++) {
@@ -54,7 +74,13 @@ HttpMethod lookup_method(const sds token)
     return HTTP_METHOD_UNDEFINED;
 }
 
-
+/**
+ * @brief Parses the first line of an HTTP request. Checks for HTTP version and catches malformed requests.
+ * 
+ * @param request_line Raw request line string to parse.
+ * @param req Pointer to HttpRequest struct storing the parsed request.
+ * @return HttpParseStatus 
+ */
 HttpParseStatus parse_request_line(sds request_line, HttpRequest *req)
 {
     int token_count;
@@ -79,7 +105,13 @@ HttpParseStatus parse_request_line(sds request_line, HttpRequest *req)
     return HTTP_PARSE_OK;
 }
 
-
+/**
+ * @brief Parses the request's headers. Creates an array of `HttpHeader` structs storing key/value pairs.
+ * 
+ * @param headers Raw headers string to parse.
+ * @param req Pointer to HttpRequest struct storing the parsed request.
+ * @return HttpParseStatus 
+ */
 HttpParseStatus parse_headers(sds headers, HttpRequest *req)
 {
     int line_count;
@@ -127,7 +159,14 @@ HttpParseStatus parse_body(sds body, HttpRequest *req)
     return HTTP_PARSE_OK;
 }
 
-
+/**
+ * @brief HTTP request parsing pipeline and interface.
+ * 
+ * @param raw Raw HTTP request string.
+ * @param len Length of the raw request HTTP string.
+ * @param out Pointer to HttpRequest struct storing the parsed request.
+ * @return HttpParseStatus 
+ */
 HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out)
 {
     sds request_line, headers, body;
@@ -141,7 +180,13 @@ HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out)
     return HTTP_PARSE_OK;
 }
 
-
+/**
+ * @brief Generate a HTTP response string from the provided `HttpResponse` struct.
+ * 
+ * @param resp Struct to generate the response string from. 
+ * @param resp_buf Pointer to string storing the generated response string.
+ * @param resp_len Pointer to variable storing the length of the generated response string.
+ */
 void http_build_response_str(HttpResponse resp, sds *resp_buf, size_t *resp_len)
 {
     sds header_block = sdscatprintf(sdsempty(), "HTTP/1.1 %i %s\r\n", resp.status_code, resp.reason_phrase);
@@ -162,7 +207,12 @@ void http_build_response_str(HttpResponse resp, sds *resp_buf, size_t *resp_len)
     sdsfree(header_block);
 }
 
-
+/**
+ * @brief Get the mime type from the file extension.
+ * 
+ * @param filename 
+ * @return sds mime type.
+ */
 sds get_mime_type(sds filename)
 {
     sds ext = strrchr(filename, '.');
@@ -187,7 +237,12 @@ sds get_mime_type(sds filename)
     return DEFAULT_MIME_TYPE;
 }
 
-
+/**
+ * @brief Map HTTP response code to appropriate reason phrase.
+ * 
+ * @param status_code HTTP response code.
+ * @return const sds Reason phrase.
+ */
 const sds http_reason_phrase(int status_code) 
 {
     switch (status_code) {
@@ -204,7 +259,15 @@ const sds http_reason_phrase(int status_code)
     }
 }
 
-
+/**
+ * @brief Add a "name: value" header to a `HttpResponse`
+ * 
+ * @param resp Pointer to the `HttpResponse` to add to.
+ * @param name 
+ * @param value 
+ * @return true If successful.
+ * @return false If unsuccessful.
+ */
 bool http_add_header(HttpResponse *resp, const sds name, const sds value)
 {
     if (resp->header_count >= MAX_HEADERS) return false; 
