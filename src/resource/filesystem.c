@@ -6,7 +6,16 @@
 #include <errno.h>
 #include "filesystem.h"
 
-
+/**
+ * @brief Reads a file from the file system and loads it into memory.
+ * 
+ * Automatically allocates the nessecary memory, but freeing the output buffer is the caller's responsibility.
+ * 
+ * @param path Path of the target file.
+ * @param out_buf Pointer to output buffer.
+ * @param out_len Length of the file.
+ * @return FsStatus 
+ */
 FsStatus filesystem_read_file(const char *path, char **out_buf, size_t *out_len) {
     if (!path || !out_buf || !out_len) {
         return FS_ERR_UNEXPECTED;

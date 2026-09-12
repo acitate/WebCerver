@@ -1,6 +1,10 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+/**
+ * @brief File system operation status.
+ * 
+ */
 typedef enum {
     FS_OK = 0,
     FS_ERR_NOT_FOUND = 1,
