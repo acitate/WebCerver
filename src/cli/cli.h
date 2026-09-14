@@ -1,6 +1,12 @@
 #ifndef __CLI_H
 #define __CLI_H
 
+/**
+ * @brief Struct for storing the program's configuration. 
+ * port: the network port to open the server on.
+ * webroot: path to the web root directory.
+ * 
+ */
 typedef struct
 {
     unsigned short port;
