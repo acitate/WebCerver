@@ -8,9 +8,16 @@
 
 #define DEFAULT_PORT 8080
 #define PROGRAM_NAME "WebCerver"
-#define PROGRAM_VERSION "1.0.0"
+#define PROGRAM_VERSION "1.1.0"
 
-
+/**
+ * @brief Handles command line options and flags and runs the program. 
+ * 
+ * @param argc 
+ * @param argv 
+ * @param server_conf Pointer to `ServerConf` struct storing the provided configuration for running the server.
+ * @return CliResult 
+ */
 CliResult cli_parse(int argc, char **argv, ServerConf *server_conf) 
 {
     struct arg_lit *help;
