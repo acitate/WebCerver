@@ -9,13 +9,13 @@
 #include "../resource/filesystem.h"
 #include "server.h"
 
-void server_process_request(const sds *req_str, size_t req_len, sds *resp_str, size_t *resp_len, sds webroot)
+void server_process_request(const char *req_str, size_t req_len, sds *resp_str, size_t *resp_len, sds webroot)
 {
     sds canonicalized_webroot = sds_malloc(1024);
     canonicalize_webroot(webroot, canonicalized_webroot, 1024);
 
     HttpRequest request;
-    HttpParseStatus hpstatus = http_parse_request(req_str, req_len, &request);
+    HttpParseStatus hpstatus = http_parse_request((sds) req_str, req_len, &request);
     HttpResponse response;
 
     if (hpstatus != HTTP_PARSE_OK) {
