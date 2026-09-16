@@ -9,6 +9,11 @@
 #include "../resource/filesystem.h"
 #include "server.h"
 
+
+static int http_code_for_PathStatus(PathStatus pstatus);
+static int http_code_for_ParseStatus(HttpParseStatus pstatus);
+
+
 void server_process_request(const char *req_str, size_t req_len, sds *resp_str, size_t *resp_len, sds webroot)
 {
     sds canonicalized_webroot = sds_malloc(1024);
