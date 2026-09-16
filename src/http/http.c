@@ -46,13 +46,13 @@ HttpParseStatus split_request(sds raw, size_t raw_len, sds *req_line, sds *heade
     if (idx == SIZE_MAX)
         return HTTP_PARSE_INCOMPLETE;
 
-    *body = sdsnew(raw);
+    *body = sdsnewlen(raw, raw_len);
     sdsrange(*body, idx + 4, raw_len);
 
-    *req_line = sdsnew(raw);
+    *req_line = sdsnewlen(raw, raw_len);
     sdsrange(*req_line, 0, line_end-1);
 
-    *headers = sdsnew(raw);
+    *headers = sdsnewlen(raw, raw_len);
     sdsrange(*headers, line_end + 2, idx);
 
     return HTTP_PARSE_OK;
