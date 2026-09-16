@@ -21,7 +21,7 @@
 CliResult cli_parse(int argc, char **argv, ServerConf *server_conf) 
 {
     struct arg_lit *help;
-    struct arg_int *version;
+    struct arg_lit *version;
     struct arg_str *subcommand;
     struct arg_int *port;
     struct arg_str *webroot;
