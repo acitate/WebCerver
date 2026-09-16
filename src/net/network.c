@@ -72,7 +72,9 @@ int network_accept(int sock_fd)
         perror("[\x1b[31mNetwork.c\x1b[0m] accept failed");
     }
     else {
-        printf("[\x1b[32mNetwork.c\x1b[0m] received connection from %s\n", get_address_string(&client_addr));
+        char * addr_str = get_address_string(&client_addr);
+        printf("[\x1b[32mNetwork.c\x1b[0m] received connection from %s\n", addr_str);
+        free(addr_str);
     }
 
     return client_fd;
