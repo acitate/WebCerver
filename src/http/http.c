@@ -262,7 +262,7 @@ sds get_mime_type(sds filename)
  * @param status_code HTTP response code.
  * @return const sds Reason phrase.
  */
-const sds http_reason_phrase(int status_code) 
+sds http_reason_phrase(int status_code) 
 {
     switch (status_code) {
         case 200: return "OK";
