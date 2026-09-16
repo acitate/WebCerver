@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <string.h>
 #include "net/network.h"
 #include "server/server.h"
 #include "cli/cli.h"
@@ -29,6 +30,8 @@ static void *handle_connection(void *arg)
     network_send_bytes(args->client_fd, resp, resp_len);
 
     network_close(args->client_fd);
+    free(args->webroot);
+    free(args);
 
     return NULL;
 }
@@ -44,14 +47,25 @@ int main(int argc, char **argv)
 
         while (1) {
             int client_fd = network_accept(server_fd);
+            struct connection_args *args = malloc(sizeof(*args));
 
-            struct connection_args args = {
-                .client_fd = client_fd,
-                .webroot = server_conf.webroot
-            };
+            if (args == NULL) {
+                return 1;
+            }
+
+            args->webroot = malloc(sizeof(server_conf.webroot));
+
+            if (args->webroot == NULL) {
+                free(args);
+                return 1;
+            }
+
+            args->client_fd = client_fd;
+            strcpy(args->webroot, server_conf.webroot);
 
             pthread_t tid;
-            pthread_create(&tid, NULL, handle_connection, &args);
+            pthread_create(&tid, NULL, handle_connection, args);
+            pthread_detach(tid);
         }
     }
     
