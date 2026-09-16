@@ -53,7 +53,7 @@ int main(int argc, char **argv)
                 return 1;
             }
 
-            args->webroot = malloc(sizeof(server_conf.webroot));
+            args->webroot = malloc(strlen(server_conf.webroot));
 
             if (args->webroot == NULL) {
                 free(args);
