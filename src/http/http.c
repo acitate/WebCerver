@@ -86,22 +86,31 @@ HttpParseStatus parse_request_line(sds request_line, HttpRequest *req)
     int token_count;
     sds *tokens = sdssplitlen(request_line, sdslen(request_line), " ", 1, &token_count);
 
-    if (token_count != 3)
+    if (token_count != 3) {
+        sdsfreesplitres(tokens, token_count);
         return HTTP_PARSE_ERR_MALFORMED_REQUEST_LINE;
+    }
 
-    if (sdscmp(tokens[2], sdsnew("HTTP/1.1")) != 0)
+    if (sdscmp(tokens[2], sdsnew("HTTP/1.1")) != 0) {
+        sdsfreesplitres(tokens, token_count);
         return HTTP_PARSE_ERR_UNSUPPORTED_VERSION;
+    }
 
-    if (strncmp(tokens[1], "/", 1) != 0)
+    if (strncmp(tokens[1], "/", 1) != 0) {
+        sdsfreesplitres(tokens, token_count);
         return HTTP_PARSE_ERR_MALFORMED_REQUEST_LINE;
+    }
 
-    if (sdslen(tokens[1]) > MAX_URI_LEN)
+    if (sdslen(tokens[1]) > MAX_URI_LEN) {
+        sdsfreesplitres(tokens, token_count);
         return HTTP_PARSE_ERR_URI_TOO_LONG;
+    }
     
     req->method = lookup_method(tokens[0]);
-    req->path = tokens[1];
-    req->version = tokens[2];
+    req->path = sdsnew(tokens[1]);
+    req->version = sdsnew(tokens[2]);
 
+    sdsfreesplitres(tokens, token_count);
     return HTTP_PARSE_OK;
 }
 
@@ -117,20 +126,26 @@ HttpParseStatus parse_headers(sds headers, HttpRequest *req)
     int line_count;
     sds *lines = sdssplitlen(headers, sdslen(headers), "\r\n", 2, &line_count);
 
-    if (line_count > MAX_HEADERS)
+    if (line_count > MAX_HEADERS) {
+        sdsfreesplitres(lines, line_count);
         return HTTP_PARSE_ERR_TOO_MANY_HEADERS;
+    }
 
     for (int i = 0; i < line_count; i++) {
 
-        if (sdslen(lines[i]) > MAX_HEADER_LEN)
+        if (sdslen(lines[i]) > MAX_HEADER_LEN) {
+            sdsfreesplitres(lines, line_count);
             return HTTP_PARSE_ERR_HEADER_TOO_LONG;
+        }
 
         size_t line_len = sdslen(lines[i]);
         size_t colon_idx = find_first(lines[i], line_len, ":", 1);
 
-        if (colon_idx == SIZE_MAX)
+        if (colon_idx == SIZE_MAX) {
+            sdsfreesplitres(lines, line_count);
             return HTTP_PARSE_ERR_MALFORMED_HEADER;
-
+        }
+        
         HttpHeader header;
 
         header.name = sdsnew(lines[i]);
@@ -146,7 +161,6 @@ HttpParseStatus parse_headers(sds headers, HttpRequest *req)
     req->header_count = line_count;
 
     sdsfreesplitres(lines, line_count);
-
     return HTTP_PARSE_OK;
 }
 
@@ -154,7 +168,7 @@ HttpParseStatus parse_headers(sds headers, HttpRequest *req)
 HttpParseStatus parse_body(sds body, HttpRequest *req)
 {
     req->body_len = sdslen(body);
-    req->body = body;
+    req->body = sdsnew(body);
 
     return HTTP_PARSE_OK;
 }
@@ -176,7 +190,10 @@ HttpParseStatus http_parse_request(const sds raw, size_t len, HttpRequest *out)
     TRY(parse_headers(headers, out));
     parse_body(body, out);
 
-    
+    sdsfree(body);
+    sdsfree(headers);
+    sdsfree(request_line);
+
     return HTTP_PARSE_OK;
 }
 
@@ -233,6 +250,8 @@ sds get_mime_type(sds filename)
     if (strcmp(ext, "txt") == 0) { return "text/plain"; }
     if (strcmp(ext, "gif") == 0) { return "image/gif"; }
     if (strcmp(ext, "png") == 0) { return "image/png"; }
+
+    sdsfree(ext);
 
     return DEFAULT_MIME_TYPE;
 }
