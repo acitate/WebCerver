@@ -91,6 +91,9 @@ $(MAIN): $(OBJECTS)
 $(OUTPUT)/tests/test_http_parser: tests/test_http_parser.o $(TEST_HTTP_OBJECTS)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LFLAGS) $(LIBS)
 
+$(OUTPUT)/tests/test_network: tests/test_network.o src/net/network.o
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LFLAGS) $(LIBS)
+
 $(OUTPUT)/tests:
 	$(MD) $(OUTPUT)/tests
 
