@@ -12,6 +12,12 @@
 #define RR_MAX_DECODED_PATH 2048
 
 
+/**
+ * @brief Converts a hexadecimal digit to its numeric value.
+ *
+ * @param c Character to convert.
+ * @return int Value from 0 to 15, or -1 if the character is not a hexadecimal digit.
+ */
 static int hex_nibble(char c) {
     if (c >= '0' && c <= '9') return c - '0';
     if (c >= 'a' && c <= 'f') return c - 'a' + 10;
@@ -20,6 +26,15 @@ static int hex_nibble(char c) {
 }
 
 
+/**
+ * @brief Decodes percent-encoded path bytes, rejecting NUL and control characters.
+ *
+ * @param encoded Encoded path bytes; need not be NUL-terminated.
+ * @param encoded_len Number of encoded bytes to read.
+ * @param out Buffer receiving the NUL-terminated decoded path on success.
+ * @param out_size Output buffer capacity, including space for the terminating NUL.
+ * @return PathStatus PATH_OK on success, or an encoding, character, or length error.
+ */
 PathStatus url_decode_path(const char *encoded, size_t encoded_len,
                             char *out, size_t out_size) {
     if (out_size == 0) return PATH_ERR_TOO_LONG;
@@ -53,6 +68,14 @@ PathStatus url_decode_path(const char *encoded, size_t encoded_len,
 }
 
 
+/**
+ * @brief Resolves an existing webroot path to an absolute path, following symbolic links.
+ *
+ * @param webroot_input NUL-terminated webroot path to resolve.
+ * @param out_canonical Buffer receiving the NUL-terminated canonical path on success.
+ * @param out_size Output buffer capacity, including space for the terminating NUL.
+ * @return PathStatus PATH_OK on success, or a not-found, length, or unexpected error.
+ */
 PathStatus canonicalize_webroot(const char *webroot_input,
                                  char *out_canonical, size_t out_size) {
     char resolved[PATH_MAX];
@@ -64,7 +87,12 @@ PathStatus canonicalize_webroot(const char *webroot_input,
     return PATH_OK;
 }
 
-
+/**
+ * @brief Checks for hidden components in request path.
+ * 
+ * @param path NUL-terminated request path to check.
+ * @return int 1 if any component starts with a dot (including . and ..), otherwise 0.
+ */
 static int has_hidden_component(const char *path)
 {
     const char *p = path;
@@ -77,6 +105,15 @@ static int has_hidden_component(const char *path)
     return 0;
 }
 
+/**
+ * @brief Resolves a request path against the webroot and checks hidden components and containment.
+ *
+ * @param decoded_path NUL-terminated decoded request path, beginning with a slash.
+ * @param canonical_webroot NUL-terminated absolute webroot path from canonicalize_webroot().
+ * @param out_resolved Buffer receiving the NUL-terminated resolved path on success.
+ * @param out_size Output buffer capacity, including space for the terminating NUL.
+ * @return PathStatus PATH_OK on success, or a length, hidden-path, not-found, forbidden, or unexpected error.
+ */
 PathStatus resolve_and_sanitize_path(const char *decoded_path, const char *canonical_webroot, char *out_resolved, size_t out_size)
 {
     size_t path_len = strlen(decoded_path);
@@ -90,7 +127,8 @@ PathStatus resolve_and_sanitize_path(const char *decoded_path, const char *canon
 
     /* Always join against the fixed webroot -- never treat the
      * request path as a standalone filesystem path. Even an
-     * absolute-looking "/etc/passwd" becomes webroot + "/etc/passwd". */
+     * absolute-looking "/etc/passwd" becomes webroot + "/etc/passwd". 
+     */
     char candidate[PATH_MAX];
     int n = snprintf(candidate, sizeof(candidate), "%s%s",
                       canonical_webroot, decoded_path);
@@ -121,7 +159,12 @@ PathStatus resolve_and_sanitize_path(const char *decoded_path, const char *canon
     return PATH_OK;
 }
 
-
+/**
+ * @brief Maps file system status codes to Path status codes.
+ * 
+ * @param fs File system status code.
+ * @return PathStatus Corresponding path status, or PATH_ERR_UNEXPECTED for other file system errors.
+ */
 static PathStatus map_fs_status(FsStatus fs)
 {
     switch (fs) {
@@ -133,7 +176,16 @@ static PathStatus map_fs_status(FsStatus fs)
     }
 }
 
-
+/**
+ * @brief Decodes and resolves a request path, then reads the resource into memory.
+ *
+ * @param raw_path Encoded request path bytes; need not be NUL-terminated.
+ * @param raw_path_len Number of encoded path bytes to read.
+ * @param canonical_webroot NUL-terminated absolute webroot path from canonicalize_webroot().
+ * @param out_buf Receives the allocated file buffer on success; the caller must free it with free().
+ * @param out_len Receives the file size in bytes, excluding the added terminating NUL, on success.
+ * @return PathStatus PATH_OK on success, or the decoding, path resolution, or file reading error.
+ */
 PathStatus resolve_resource(const char *raw_path, size_t raw_path_len, const char *canonical_webroot, char **out_buf, size_t *out_len)
 {
     char decoded[RR_MAX_DECODED_PATH];
@@ -144,21 +196,9 @@ PathStatus resolve_resource(const char *raw_path, size_t raw_path_len, const cha
     s = resolve_and_sanitize_path(decoded, canonical_webroot, resolved, sizeof(resolved));
     if (s != PATH_OK) return s;
 
-    /* Cache lookup slots in here once cache.c exists:
-     *
-     *   if (cache_get(resolved, out_buf, out_len) == CACHE_HIT) return PATH_OK;
-     *
-     * resolve_resource() would then be the one place that decides
-     * cache-vs-disk, per the earlier design -- filesystem.c and
-     * cache.c stay ignorant of each other. */
 
     FsStatus fs = filesystem_read_file(resolved, out_buf, out_len);
     s = map_fs_status(fs);
-
-    /* Cache populate slots in here on a successful disk read:
-     *
-     *   if (s == PATH_OK) cache_put(resolved, *out_buf, *out_len);
-     */
 
     return s;
 }
