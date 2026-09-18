@@ -42,7 +42,7 @@ typedef struct
 {
     int status_code;
     sds reason_phrase;
-    HttpHeader headers[16];
+    HttpHeader headers[MAX_HEADERS];
     size_t header_count;
     sds body;
     size_t body_len;
