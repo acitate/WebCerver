@@ -21,7 +21,7 @@ static void *handle_connection(void *arg)
     struct connection_args *args = arg;
 
     char buffer[BUFFER_SIZE];
-    size_t buf_len = network_read_bytes(args->client_fd, buffer, sizeof(buffer));
+    ssize_t buf_len = network_read_bytes(args->client_fd, buffer, sizeof(buffer));
 
     char *resp;
     size_t resp_len;
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
                 return 1;
             }
 
-            args->webroot = malloc(strlen(server_conf.webroot));
+            args->webroot = malloc(strlen(server_conf.webroot) + 1);
 
             if (args->webroot == NULL) {
                 free(args);
